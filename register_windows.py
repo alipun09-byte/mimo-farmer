@@ -36,7 +36,7 @@ REGION = "SG"
 # Email provider: "outlook" or "gmail"
 # "outlook" = random@outlook.com, forwarded to Gmail, poll Gmail IMAP
 # "gmail"   = Gmail dot trick (yayblue3+xxx@gmail.com)
-EMAIL_PROVIDER = "outlook"
+EMAIL_PROVIDER = "gmail"
 
 # Gmail (for polling verification codes)
 GMAIL_USER = "yayblue3@gmail.com"
