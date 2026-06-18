@@ -1,0 +1,33 @@
+{
+  "domain": "10minutemail.com",
+  "count": 50,
+  "default_password": "PelerKuda2026!",
+  "region": "ID",
+  "gmail_register": {
+    "email": "yayblue3@gmail.com",
+    "app_password": "iueambozpuihsloc"
+  },
+  "gmail_bind": {
+    "email": "yayblue3@gmail.com",
+    "app_password": "iueambozpuihsloc"
+  },
+  "temp_email_services": [
+    "emailnator.com",
+    "generator.email",
+    "internxt.com"
+  ],
+  "captcha": {
+    "mode": "boterdrop",
+    "boterdrop_url": "http://localhost:8000",
+    "twocaptcha_api_key": "",
+    "max_retries": 3
+  },
+  "proxies": [],
+  "delay_min": 30,
+  "delay_max": 120,
+  "playwright": {
+    "headless": true,
+    "timeout": 30000
+  },
+  "output_dir": "./output"
+}
