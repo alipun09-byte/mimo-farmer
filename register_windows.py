@@ -33,13 +33,39 @@ COUNT = 10
 PASSWORD = "PelerKuda2026!"
 REGION = "SG"
 
-# Gmail
+# Email provider: "outlook" or "gmail"
+# "outlook" = random@outlook.com, forwarded to Gmail, poll Gmail IMAP
+# "gmail"   = Gmail dot trick (yayblue3+xxx@gmail.com)
+EMAIL_PROVIDER = "outlook"
+
+# Gmail (for polling verification codes)
 GMAIL_USER = "yayblue3@gmail.com"
 GMAIL_APP_PASS = "iueambozpuihsloc"
 
 # Output
 OUTPUT_DIR = Path("output")
 OUTPUT_DIR.mkdir(exist_ok=True)
+
+
+# ─── OUTLOOK EMAIL GENERATOR ──────────────────────────────────
+def generate_outlook_email():
+    """
+    Generate random Outlook email address: random123@outlook.com
+    Email ini akan di-forward ke Gmail via Outlook Forwarding.
+    """
+    prefix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=12))
+    return f"{prefix}@outlook.com"
+
+
+def generate_email():
+    """
+    Generate email based on EMAIL_PROVIDER setting.
+    Returns (email_address, provider_used)
+    """
+    if EMAIL_PROVIDER == "outlook":
+        return generate_outlook_email(), "outlook"
+    else:
+        return generate_gmail_address(), "gmail"
 
 
 # ─── GMAIL DOT TRICK ──────────────────────────────────────────
@@ -132,9 +158,9 @@ async def register_account(page, account_num):
     print(f"  ACCOUNT #{account_num}")
     print(f"{'='*60}")
     
-    # Generate Gmail dot trick address
-    email_addr = generate_gmail_address()
-    print(f"  Email: {email_addr}")
+    # Generate email address based on provider setting
+    email_addr, provider = generate_email()
+    print(f"  Email: {email_addr} ({provider})")
     print(f"  Password: {PASSWORD}")
     
     # Step 1: Navigate to register page
@@ -326,7 +352,7 @@ async def register_account(page, account_num):
             print(f"  [7/7] ⚠️ API key extraction error: {e}")
         
         # Save result
-        result = {"email": email_addr, "password": PASSWORD, "api_key": api_key}
+        result = {"email": email_addr, "password": PASSWORD, "api_key": api_key, "provider": EMAIL_PROVIDER}
         with open(OUTPUT_DIR / "api_keys.txt", "a") as f:
             f.write(json.dumps(result) + "\n")
         
@@ -334,7 +360,7 @@ async def register_account(page, account_num):
     
     elif "success" in body_text.lower():
         print("  [7/7] ✅ Registration completed (no platform redirect)")
-        result = {"email": email_addr, "password": PASSWORD, "api_key": None}
+        result = {"email": email_addr, "password": PASSWORD, "api_key": None, "provider": EMAIL_PROVIDER}
         with open(OUTPUT_DIR / "api_keys.txt", "a") as f:
             f.write(json.dumps(result) + "\n")
         return result
@@ -353,11 +379,11 @@ async def main():
     from playwright.async_api import async_playwright
     
     print("="*60)
-    print("  XIAOMI MIMO AUTO-REGISTRATION v3")
-    print("  Gmail Dot Trick + IMAP Auto-Poll")
+    print("  XIAOMI MIMO AUTO-REGISTRATION v4")
+    print(f"  Email: {EMAIL_PROVIDER.upper()} + Gmail IMAP Polling")
     print("="*60)
     print(f"  Accounts: {COUNT}")
-    print(f"  Gmail: {GMAIL_USER}")
+    print(f"  Gmail (polling): {GMAIL_USER}")
     print(f"  Output: {OUTPUT_DIR.absolute()}")
     print("="*60)
     
