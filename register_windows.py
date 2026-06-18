@@ -36,7 +36,10 @@ REGION = "SG"
 # Email provider: "outlook" or "gmail"
 # "outlook" = random@outlook.com, forwarded to Gmail, poll Gmail IMAP
 # "gmail"   = Gmail dot trick (yayblue3+xxx@gmail.com)
-EMAIL_PROVIDER = "gmail"
+EMAIL_PROVIDER = "custom_domain"
+
+# Custom domain (Cloudflare Email Routing)
+DOMAIN = "yaybgent.web.id"
 
 # Gmail (for polling verification codes)
 GMAIL_USER = "yayblue3@gmail.com"
@@ -64,8 +67,19 @@ def generate_email():
     """
     if EMAIL_PROVIDER == "outlook":
         return generate_outlook_email(), "outlook"
+    elif EMAIL_PROVIDER == "custom_domain":
+        return generate_custom_domain_email(), "custom_domain"
     else:
         return generate_gmail_address(), "gmail"
+
+
+def generate_custom_domain_email():
+    """
+    Generate random email on custom domain: random123@yaybgent.web.id
+    Forwarded via Cloudflare Email Routing → Gmail.
+    """
+    prefix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+    return f"{prefix}@{DOMAIN}"
 
 
 # ─── GMAIL DOT TRICK ──────────────────────────────────────────
