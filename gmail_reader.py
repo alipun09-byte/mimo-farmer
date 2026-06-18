@@ -57,8 +57,8 @@ class GmailReader:
         try:
             self.mail.select("INBOX")
             
-            # Search for unread emails from specific sender
-            status, messages = self.mail.search(None, f'(UNSEEN FROM "{sender_filter}")')
+            # Grab ALL recent unread emails — filter locally (Gmail IMAP doesn't support complex OR)
+            status, self.mail.search(None, '(UNSEEN)')
             
             if status != "OK":
                 return None

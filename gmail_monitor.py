@@ -26,7 +26,8 @@ def check_xiaomi_codes():
         mail.select("INBOX")
         
         since = datetime.now().strftime("%d-%b-%Y")
-        status, messages = mail.search(None, f'(SINCE "{since}" FROM "xiaomi")')
+        # Grab ALL recent emails — filter locally (Gmail IMAP doesn't support complex OR)
+        status, messages = mail.search(None, f'(SINCE "{since}")')
         
         if status != "OK" or not messages[0]:
             mail.logout()
@@ -45,6 +46,17 @@ def check_xiaomi_codes():
             msg_id_header = msg.get("Message-ID", str(msg_id))
             
             if msg_id_header in seen_codes:
+                continue
+            
+            # Filter: only process emails from xiaomi/outlook with verification code
+            fr_lower = msg.get("From", "").lower()
+            subj_lower = subject.lower() if subject else ""
+            
+            is_xiaomi = "xiaomi" in fr_lower or "mimo" in fr_lower
+            is_outlook_fwd = "outlook" in fr_lower
+            is_verification = any(kw in subj_lower for kw in ["verification", "verifikasi", "code", "account"])
+            
+            if not (is_xiaomi or is_outlook_fwd or is_verification):
                 continue
             
             body = ""

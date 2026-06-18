@@ -93,7 +93,8 @@ def generate_gmail_address():
 def poll_verification_code(max_wait=180):
     """
     Poll Gmail IMAP for Xiaomi verification code.
-    Checks every 5 seconds for max_wait seconds.
+    Strategy: grab all recent emails, filter locally for xiaomi/outlook/verification.
+    Gmail IMAP doesn't support complex OR queries — so we search broadly and parse.
     Returns 6-digit code or None.
     """
     print("    Polling Gmail IMAP for verification code...")
@@ -106,7 +107,8 @@ def poll_verification_code(max_wait=180):
             
             # Search for Xiaomi emails in last 10 minutes
             since = datetime.now().strftime("%d-%b-%Y")
-            status, messages = mail.search(None, f'(SINCE "{since}" FROM "xiaomi")')
+            # Broad search: ALL recent emails — filter locally
+            status, messages = mail.search(None, f'(SINCE "{since}")')
             
             if status == "OK" and messages[0]:
                 msg_ids = messages[0].split()
@@ -128,14 +130,24 @@ def poll_verification_code(max_wait=180):
                         else:
                             body = msg.get_payload(decode=True).decode(errors="replace")
                         
-                        # Extract 6-digit code
-                        codes = re.findall(r'\b(\d{6})\b', body)
-                        if codes:
-                            code = codes[0]  # Take first 6-digit number
-                            print(f"    ✅ Code found: {code}")
-                            print(f"    Subject: {subject[:60]}")
-                            mail.logout()
-                            return code
+                        # Filter: only process emails from xiaomi/outlook with verification code
+                        fr_lower = msg.get("From", "").lower()
+                        subj_lower = subject.lower() if subject else ""
+                        
+                        is_xiaomi = "xiaomi" in fr_lower or "mimo" in fr_lower
+                        is_outlook_fwd = "outlook" in fr_lower
+                        is_verification = any(kw in subj_lower for kw in ["verification", "verifikasi", "code", "verification code", "account"])
+                        
+                        if is_xiaomi or is_outlook_fwd or is_verification:
+                            # Extract 6-digit code
+                            codes = re.findall(r'\b(\d{6})\b', body)
+                            if codes:
+                                code = codes[0]
+                                print(f"    ✅ Code found: {code}")
+                                print(f"    From: {fr_lower[:50]}")
+                                print(f"    Subject: {subject[:60]}")
+                                mail.logout()
+                                return code
             
             mail.logout()
             
