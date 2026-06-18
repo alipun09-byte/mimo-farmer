@@ -35,6 +35,10 @@ COUNT = 50
 PASSWORD = "PelerKuda2026!"
 REGION = "SG"
 
+# Referral code
+REFERRAL_CODE = "YPS83K"
+REFERRAL_URL = f"https://platform.xiaomimimo.com?ref={REFERRAL_CODE}"
+
 # Email provider: "custom_domain" | "gmail" | "outlook"
 EMAIL_PROVIDER = "custom_domain"
 DOMAIN = "yaybgent.web.id"
@@ -187,10 +191,12 @@ async def register_account(page, account_num):
     print(f"  ACCOUNT #{account_num} | {email_addr}")
     print(f"{'='*60}")
     
+    print(f"   Referral: {REFERRAL_CODE}")
+    
     # Step 1: Navigate
     print("  [1/8] Navigating to Mimo register...")
     try:
-        await page.goto("https://platform.xiaomimimo.com/login", timeout=30000)
+        await page.goto(REFERRAL_URL, timeout=30000)
         await page.wait_for_timeout(3000)
     except Exception as e:
         print(f"  ❌ Navigation error: {e}")
